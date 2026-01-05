@@ -1,4 +1,4 @@
-﻿using backend.Database;
+using backend.Database;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +14,13 @@ namespace backend.Controllers
         {
             _context = context;
         }
-        [Route("/getUsers")]
-        [HttpGet]
+        [HttpGet("/getUsers")]
         public async Task<IActionResult> GetUsers()
         {
             return Ok(await _context.Users.ToListAsync());
         }
 
-        [Route("/addUsers")]
-        [HttpPost]
+        [HttpPost("/addUsers")]
         public async Task<IActionResult> AddUser(User user)
         {
             _context.Users.Add(user);
@@ -30,20 +28,36 @@ namespace backend.Controllers
             return Ok(user);
         }
 
-        [Route("/deleteUsers/{id}")]
-        [HttpDelete]
-        public IActionResult DeleteUser(int id)
+        [HttpDelete("/deleteUsers/{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            return Ok("Deleted successfully");
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound($"User with id {id} not found");
+            }
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return Ok($"User with id {id} deleted successfully");
         }
 
-        [Route("/updateUser")]
-        [HttpPatch]
-        public IActionResult UpdateUser([FromBody] User userParam)
+        [HttpPatch("/updateUser/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] User userParam)
         {
-            return Ok("Updated Successfully");
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound($"User with id {id} not found");
+            }
+            user.Name = userParam.Name ?? user.Name;
+            user.City = userParam.City ?? user.City;
+            user.Pincode = userParam.Pincode ?? user.Pincode;
+            user.State = userParam.State ?? user.State;
+            user.Age = userParam.Age != 0 ? userParam.Age : user.Age;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(user);
         }
     }
-
-   
 }
