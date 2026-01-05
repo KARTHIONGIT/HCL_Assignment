@@ -1,0 +1,13 @@
+.navigation {
+    width: 100%;
+    position: relative;
+    top: 0;
+    z-index: 1000;
+    font-size: xx-large;
+    background-color: azure;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1% 0;
+}
